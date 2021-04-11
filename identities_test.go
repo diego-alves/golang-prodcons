@@ -8,7 +8,7 @@ import (
 
 func TestIdentities(t *testing.T) {
 
-	ids := GetExternalIdentities("")
+	ids := GetExternalIdentities("", "")
 	assert.Equal(t, 0, ids.TotalCount)
 
 }

@@ -6,6 +6,7 @@ type ExternalIdentities struct {
 	TotalCount int
 	PageInfo   struct {
 		HasNextPage bool
+		EndCursor   string
 	}
 	Edges []struct {
 		Node struct {
@@ -19,36 +20,44 @@ type ExternalIdentities struct {
 	}
 }
 
-const query = `query($org: String!) {
-    organization(login: $org) {
-        samlIdentityProvider {
-            externalIdentities(first: 100) {
-                totalCount
-                pageInfo {
-                    hasNextPage
-                }
-                edges {
-                    node {
-                        samlIdentity {
-                            nameId
-                        }
-                        user {
-                            login
-                        }
-                    }
-                }
-            }
-        }
-    }
-}`
+const query = `query($org: String!, $after: String) {
+	organization(login: $org) {
+	  samlIdentityProvider {
+		externalIdentities(first: 100, after: $after) {
+		  totalCount
+		  pageInfo {
+			startCursor
+			hasNextPage
+			endCursor
+		  }
+		  edges {
+			cursor
+			node {
+			  samlIdentity {
+				nameId
+			  }
+			  user {
+				login
+			  }
+			}
+		  }
+		}
+	  }
+	}
+  }`
 
-func GetExternalIdentities(org string) ExternalIdentities {
+func GetExternalIdentities(org string, after string) ExternalIdentities {
+	var data map[string]map[string]map[string]map[string]ExternalIdentities
 	vars := map[string]interface{}{
 		"org": org,
 	}
+
+	if after != "" {
+		vars["after"] = after
+	}
+
 	res := RequestE(query, vars)
-	var data map[string]map[string]map[string]map[string]ExternalIdentities
+
 	json.Unmarshal(res, &data)
 	return data["data"]["organization"]["samlIdentityProvider"]["externalIdentities"]
-
 }
