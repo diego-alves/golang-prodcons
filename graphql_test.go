@@ -14,7 +14,7 @@ func TestSendRequest(t *testing.T) {
 		}
 	}`
 
-	res := sendRequest("https://api.github.com/graphql", query, nil)
+	res := Request(query)
 	assert.Equal(t, `{"data":{"viewer":{"login":"diego-alves"}}}`, string(res))
 
 }

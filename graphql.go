@@ -9,14 +9,18 @@ import (
 )
 
 type GraphQL struct {
-	Query     string            `json:"query"`
-	Variables map[string]string `json:"variables"`
+	Query     string      `json:"query"`
+	Variables interface{} `json:"variables"`
 }
 
-func sendRequest(url string, query string, variables map[string]string) []byte {
+func Request(query string) []byte {
+	return RequestE(query, nil)
+}
+
+func RequestE(query string, variables map[string]interface{}) []byte {
 	obj := GraphQL{query, variables}
 	objJson, _ := json.Marshal(obj)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(objJson))
+	req, _ := http.NewRequest("POST", "https://api.github.com/graphql", bytes.NewBuffer(objJson))
 	req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
 	res, _ := http.DefaultClient.Do(req)
 	defer res.Body.Close()
