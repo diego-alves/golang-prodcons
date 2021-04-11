@@ -22,4 +22,6 @@ jobs:
       run: go mod download
 
     - name: Test
+      env:
+        GITHUB_TOKEN: ${{secrets.SECRET}}
       run: go test -v ./...
